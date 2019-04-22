@@ -16,3 +16,4 @@ _mailinglist
 .idea/
 docs/_build/
 
+config.json
