@@ -16,11 +16,19 @@ class NewsSource(DBObject):
 	Hold a news source object.
 	This assumes that the object is from the News API
 	"""
-    def __init__(self, features, **kwargs):
-        pass
+    def __init__(self, features):
+
+        # Check features:
+        for required_feature in newssource_required_features:
+            assert required_feature in features.keys()
+
+        super().__init__(features)
 
     def __str__(self):
         """
         Return a readble representaion of self
         """
-        pass
+        return "<NewsSource {0}:{1}>".format(
+            self.id,
+            self.name
+        )
