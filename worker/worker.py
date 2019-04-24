@@ -2,33 +2,15 @@
 See README.md for complete guide
 """
 
-import argparse
 import logging
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+from parser import generate_parser
 
-# General settings
-parser.add_argument('--mode', default='local', choices=['local'],
-                    help='Choose mode to run worker.')
-parser.add_argument('--max-loops', default=None, type=int,
-                    help='Maximum number of update loops to run.')
-
-# Logging settings
-parser.add_argument('--log-level', type=str, default="DEBUG",
-                    choices=["DEBUG", "INFO", "WARNING", "CRITICAL"],
-                    help='sum the integers (default: find the max)')
-parser.add_argument('--log-file', type=str, default=None,
-                    help='File to write to. If not set, will log to STDOUT.')
-
-# This can get passed all over the place, but will never be changed.
-# Need to enforce this requirment.
-ARGS = parser.parse_args()
+ARGS = generate_parser().parse_args()
 
 def main():
-
-    curr_loop = 0
+    finished_loops = 0
     while True:
-        curr_loop += 1
 
         # Update our sources
 
@@ -38,8 +20,9 @@ def main():
 
         # For each unprocessed top headline, process it and store results.
 
-        if curr_loop == ARGS.max_loops:
-            logger.debug("Finished {0} loops. Stopping now.".format(curr_loop))
+        finished_loops += 1
+        if finished_loops == ARGS.max_loops:
+            logger.debug("Finished {0} loops. Stopping now.".format(finished_loops))
             break
 
     logger.debug("Bye-bye")
