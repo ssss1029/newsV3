@@ -23,10 +23,10 @@ class LocalDatabase(object):
         self.articles = db.table('articles')
         self.sources = db.table('sources')
 
-        for idx, article in enumerate(self.articles):
+        for article in articles:
             self.articles.insert(copy_dict_shallow(article))
 
-        for idx, source in enumerate(self.sources):
+        for source in sources:
             self.sources.insert(copy_dict_shallow(source))
 
         self.tables = { 'articles', 'sources' }
