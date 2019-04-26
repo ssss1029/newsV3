@@ -3,6 +3,9 @@ This file hold functions and constants that are specific to the
 News API at http://newsapi.org
 """
 
+from newsapi import NewsApiClient
+from .parser import generate_parser
+
 news_api_categories = {
     "business",
     "entertainment",
@@ -84,6 +87,16 @@ news_api_countries = {
 	"ua",
 	"us",
 	"ve",
-	"za
+	"za"
 }
 
+ARGS = generate_parser().parse_args()
+
+def get_all_sources():
+	"""
+	Return all the sources from the NewsAPI.
+	Return format:
+	"""
+	news_api_client = NewsApiClient(api_key=ARGS.news_api_key)
+	sources = news_api_client.get_sources()
+	return sources
