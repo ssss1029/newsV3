@@ -4,7 +4,7 @@ Base class that all database objects should inherit from.
 
 import collections
 
-from ..parser import generate_parser
+from worker.utils.parser import generate_parser
 
 ARGS = generate_parser().parse_args()
 
