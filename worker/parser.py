@@ -14,7 +14,7 @@ def generate_parser():
     # General settings
     parser.add_argument('--mode', default='local', choices=['local'],
                         help='Choose mode to run worker.')
-    parser.add_argument('--max-loops', default=-1, type=int,
+    parser.add_argument('--max-loops', default=1, type=int,
                         help='Maximum number of update loops to run. -1 = Run forever')
 
     # Logging settings
