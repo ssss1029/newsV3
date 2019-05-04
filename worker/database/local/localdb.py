@@ -17,9 +17,9 @@ class LocalDatabase(object):
     Currently only supports articles and sources
     """
 
-    def __init__(self, articles=None, sources=None):
+    def __init__(self, articles=None, sources=None, json_save_file='database.json'):
 
-        self.db = TinyDB('database.json')
+        self.db = TinyDB(json_save_file)
         self.articles = db.table('articles')
         self.sources = db.table('sources')
 
@@ -32,7 +32,7 @@ class LocalDatabase(object):
         self.tables = { 'articles', 'sources' }
 
 
-    def save_object(obj_type, obj):
+    def insert(obj_type, obj):
         """
         Save the object to the database
         """
@@ -59,3 +59,11 @@ class LocalDatabase(object):
                 ret.append(copy_dict_shallow(obj))
 
         return ret
+
+    def update(obj_type, query, new_obj):
+        """
+        Update the object of type obj_type that matches query to be new_obj
+        """
+        assert obj_type in self.tables
+        table = getattr(self, obj_type)
+        table.update(new_obj, query)
