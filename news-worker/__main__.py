@@ -12,22 +12,22 @@ from worker.utils.parser import generate_parser
 
 ARGS = generate_parser().parse_args()
 
-def update_sources(db):
+def update_sources(db, news_api_key, strict=True):
     """
-    Update all the sources in our database
-    This function will exit when appropriate.
+    Update all the sources in our database by querying the NewsAPI as appropriate
+    This function will kill the program on errors if strict is True.
     """
 
     # Get the current sources from the API
     try:
-        sources_new = get_all_sources(ARGS.news_api_key)
+        sources_new = get_all_sources(news_api_key)
         logger.info("Acquired new sources")
         logger.debug(sources_new)
     except Exception as e:
         logger.exception(e)
         logger.info("Unable to pull new sources from news API")
 
-        if ARGS.strict == True:
+        if strict:
             # Kill the program
             logger.critical("--strict used. Killing program")
             exit(-1)
@@ -48,7 +48,7 @@ def update_sources(db):
         except Exception as e:
             logger.exception(e)
             logger.exception("Unable to insert/update {0} into DB".format(pulled_source))
-            if ARGS.strict:
+            if strict:
                 # Kill the program
                 logger.critical("--strict used. Killing program")
                 exit(-1)
@@ -59,7 +59,11 @@ def update_sources(db):
 
     logger.info("Finished updating database")
 
-def update_articles():
+def update_articles(db, news_api_key, strict=True):
+    """
+    Update all the articles in our database by querying the NewsAPI as appropriate
+    This function will kill the program on errors if strict is True.
+    """
     raise NotImplementedError()
 
 def main():
@@ -79,7 +83,11 @@ def main():
     while True:
 
         # Update our sources
-        update_sources(database)
+        update_sources(
+            db=database,
+            news_api_key=ARGS.news_api_key,
+            strict=ARGS.strict
+        )
 
         # For each source, get the top headlines. Store top headlines somewhere.
 
