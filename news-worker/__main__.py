@@ -26,7 +26,6 @@ def update_sources(db):
     except Exception as e:
         logger.exception(e)
         logger.info("Unable to pull new sources from news API")
-        sources_new = []
 
         if ARGS.strict == True:
             # Kill the program
@@ -40,58 +39,28 @@ def update_sources(db):
 
     logger.info("Beginning updating database ")
     for pulled_source in sources_new:
-        db.updateOrInsertOne(
-            tableName="sources",
-            query={"id": pulled_source["id"]},
-            fields=pulled_source
-        )
+        try:
+            db.updateOrInsertOne(
+                tableName="sources",
+                query={"id": pulled_source["id"]},
+                fields=pulled_source
+            )
+        except Exception as e:
+            logger.exception(e)
+            logger.exception("Unable to insert/update {0} into DB".format(pulled_source))
+            if ARGS.strict:
+                # Kill the program
+                logger.critical("--strict used. Killing program")
+                exit(-1)
+            else:
+                # Continue
+                logger.warning("--strict NOT used, so continuing without updating this source.")
+                return
+
     logger.info("Finished updating database")
 
-    # sources_new should be a fully populated list by here.
-    # logger.info("Beginning updating database ")
-    # for pulled_source in sources_new:
-    #     curr_id = pulled_source["id"]
-
-    #     # Check if this ID already exists in the database.
-    #     existing_source = db.get(
-    #         obj_type="source",
-    #         query={"id" : curr_id}
-    #     )
-
-    #     if len(existing_source) > 1:
-    #         # Something has gone horribly wrong.
-    #         logger.critical("ID {0} has multiple sources in database: {1}".format(
-    #             curr_id,
-    #             str(existing_source)
-    #         ))
-    #         exit(-1)
-
-    #     if len(existing_source) == 1:
-    #         # Update this item
-    #         logger.debug("Updating object in {0} with id = {1} to {2}".format(
-    #             "sources",
-    #             curr_id,
-    #             pulled_source
-    #         ))
-
-    #         db.update(
-    #             obj_type="source",
-    #             query={"id" : curr_id},
-    #             fields=pulled_source
-    #         )
-    #     else:
-    #         # No matching existing sources. Stick this in database.
-    #         # Insert into the database
-    #         logger.debug("Inserting object into {0}: {1}".format(
-    #             "sources",
-    #             pulled_source
-    #         ))
-    #         db.insert(
-    #             obj_type="source",
-    #             fields=pulled_source
-    #         )
-    # logger.info("Finished updating database")
-
+def update_articles():
+    raise NotImplementedError()
 
 def main():
     finished_loops = 0
