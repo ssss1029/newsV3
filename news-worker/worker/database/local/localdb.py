@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class LocalDatabase(object):
     """
-    Based on tinydb.
+    Based on tinydb. This database is meant to be used when developing locally.
     Currently only supports articles and sources
     """
 
@@ -74,7 +74,7 @@ class LocalDatabase(object):
             tableName=tableName,
             query=MatchingQuery
         )
-        
+
         if len(existing_sources) > 1:
             # Something has gone wrong
             logger.exception("db.updateOne failed. Found {0} in {1} that match {2}".format(
