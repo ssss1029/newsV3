@@ -12,7 +12,7 @@ def copy_dict_shallow(d):
     Make a shallow copy of the given dict, while checking if all keys and values are hashable
     """
     result = dict()
-    for key, value in d:
+    for key, value in d.items():
         key_hashable = isinstance(key, collections.Hashable)
         value_hashable = isinstance(value, collections.Hashable)
 

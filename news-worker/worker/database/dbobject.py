@@ -1,12 +1,10 @@
 """
 Base class that all database objects should inherit from.
+
+THIS IS NOT USED NOW.
 """
 
 import collections
-
-from worker.utils.parser import generate_parser
-
-ARGS = generate_parser().parse_args()
 
 class DBObject(object):
     """

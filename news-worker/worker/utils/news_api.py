@@ -6,7 +6,6 @@ News API at http://newsapi.org
 import logging
 
 from newsapi import NewsApiClient
-from .parser import generate_parser
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +93,7 @@ news_api_countries = {
 	"za"
 }
 
-ARGS = generate_parser().parse_args()
-
-def get_all_sources():
+def get_all_sources(news_api_key):
 	"""
 	Return all the sources from the NewsAPI.
 
@@ -116,17 +113,17 @@ def get_all_sources():
 		If error:
 			Rasies exception.
 	"""
-	news_api_client = NewsApiClient(api_key=ARGS.news_api_key)
+	news_api_client = NewsApiClient(api_key=news_api_key)
 
 	# This can also raise an excption
 	sources = news_api_client.get_sources()
 
-	if sources.status == "ok":
+	if sources["status"] == "ok":
 		# We're all good
-		return sources.sources
+		return sources["sources"]
 	else:
 		logger.exception("Error getting sources. Got the following return object: {0}".format(
-			soruces
+			sources
 		), exc_info=True)
 
 		raise Exception("There was an error getting sources. See log.")
