@@ -2,11 +2,14 @@
 
 # Dependencies
  - Python 3.5
+ - Java (For boilerpipe3. Make sure JAVA_HOME is set properly)
+ - gcc (For boilerpipe3. Make sure you're using the gcc from your conda environment)
 
 # Setup
 ```
 $ conda create --name news-worker python=3.6
 $ conda activate news-worker
+$ conda install -c anaconda gcc # Needed for boilerpipe's C++ compilation
 $ pip install -r requirements.txt
 ```
 
