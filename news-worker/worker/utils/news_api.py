@@ -56,10 +56,7 @@ def get_top_articles(source_id, news_api_key):
 		If no error:
 			[
 				{
-					'source': {
-						'id': 'abc-news', 
-						'name': 'ABC News'
-					}, 
+					'source_id': 'abc-news', 
 					'author': 'John Parkinson', 
 					'title': "Florida Bar looking at GOP ...", 
 					'description': 'Florida Republican Rep. ...', 
@@ -92,7 +89,7 @@ def get_top_articles(source_id, news_api_key):
 	# Now, we need to check if we actually got all the top articles from this one request
 	# response will contain a 'totalResults' field, which we can use to figure out if there are more we need to get
 
-	curr_articles = response["articles"]
+	curr_articles = clean_top_articles(response["articles"])
 	num_total_articles = int(response['totalResults'])
 	curr_page = 2
 	while num_total_articles < len(curr_articles):
@@ -110,11 +107,58 @@ def get_top_articles(source_id, news_api_key):
 
 			raise Exception("There was an error getting sources. See log.")
 		else:
-			curr_articles.extend(response['articles'])
+			curr_articles.extend(clean_top_articles(response['articles']))
 			curr_page += 1
 
 	return curr_articles
 
+def clean_top_articles(articles):
+	"""
+	Before: 
+		[
+			{
+				'source': {
+					'id': 'abc-news', 
+					...
+				}
+				'author': 'John Parkinson', 
+				'title': "Florida Bar looking at GOP ...", 
+				'description': 'Florida Republican Rep. ...', 
+				'url': 'https://abcnews.go.com/Politics/florida-bar-gop-lawmakers-tweet-targeting-michael-cohen/story?id=62910364', 
+				'urlToImage': 'https://s.abcnews.com/images/Politics/matt-gaetz-epa-jef-190508_hpMain_16x9_992.jpg', 
+				'publishedAt': '2019-05-08T21:49:58Z', 
+				'content': 'Florida Republican Rep. Matt Gaetz is facing continued ... … [+3846 chars]'
+			}, 
+			{
+				...
+			}
+		]
+
+	After:
+		[
+			{
+				'source_id': 'abc-news', 
+				'author': 'John Parkinson', 
+				'title': "Florida Bar looking at GOP ...", 
+				'description': 'Florida Republican Rep. ...', 
+				'url': 'https://abcnews.go.com/Politics/florida-bar-gop-lawmakers-tweet-targeting-michael-cohen/story?id=62910364', 
+				'urlToImage': 'https://s.abcnews.com/images/Politics/matt-gaetz-epa-jef-190508_hpMain_16x9_992.jpg', 
+				'publishedAt': '2019-05-08T21:49:58Z', 
+				'content': 'Florida Republican Rep. Matt Gaetz is facing continued ... … [+3846 chars]'
+			}, 
+			{
+				...
+			}
+		]
+
+	"""
+
+	for article in articles:
+		source_id = article['source']['id']
+		del article['source']
+		article['source_id'] = source_id
+	
+	return articles
 
 ###############################
 # CONSTANTS

@@ -17,6 +17,9 @@ class LocalDatabase(object):
     """
     Based on tinydb. This database is meant to be used when developing locally.
     Currently only supports articles and sources
+
+    Generally, the functions starting in underscore require tindb.Query() objects to
+    be passed in. Use the other ones when calling transactions from outside.
     """
 
     def __init__(self, articles=None, sources=None, json_save_file='database.json'):
@@ -56,6 +59,30 @@ class LocalDatabase(object):
         table = getattr(self, tableName)
         table.update(fields, query)
 
+    def get(self, tableName, fields=None, query={}):
+        """
+        Get all records in the given table that match query. Return the fields that are requested.
+        fields: list of str
+        query: dict { key: value, ... }
+        """
+
+        # Build a tinydb.Query()
+        MatchingQuery = Query()
+        for key, value in query.items():
+            MatchingQuery = MatchingQuery & (Query()[key] == value)
+        
+        matches = self._get(tableName, MatchingQuery)
+
+        # Filter only the fields that we want
+        results = list()
+        for match in matches:
+            filtered_match = dict()
+            for key, value in match.items():
+                if fields == None or key in fields:
+                    filtered_match[key] = value
+            results.append(filtered_match)
+        
+        return results
 
     def updateOrInsertOne(self, tableName, query, fields):
         """
