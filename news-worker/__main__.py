@@ -147,7 +147,6 @@ def main():
             )
 
         logger.info("Finished updating top articles for each source.")
-            
 
         # For each top headline, check if it is already processed.
 
