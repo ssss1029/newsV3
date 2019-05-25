@@ -116,7 +116,7 @@ def main():
         db = LocalDatabase(
             articles=[],
             sources=[],
-            json_save_file="database.json"
+            json_save_file="news-worker/database.json"
         )
     else:
         raise NotImplementedError("Mode {0} not supported yet".format(ARGS.mode))
