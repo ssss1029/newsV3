@@ -7,111 +7,24 @@ import os
 import sys
 
 from worker.database.local.localdb import LocalDatabase
+from worker.steps.update_articles import update_articles
+from worker.steps.update_sources import update_sources
 from worker.utils.news_api import get_all_sources, get_top_articles
 from worker.utils.parser import generate_parser
 
 ARGS = generate_parser().parse_args()
 
-def update_sources(db, news_api_key, strict=True):
-    """
-    Update all the sources in our database by querying the NewsAPI as appropriate
-    This function will kill the program on errors if strict is True.
-    """
-
-    # Get the current sources from the API
-    try:
-        sources_new = get_all_sources(news_api_key)
-        logger.info("Acquired new sources")
-        logger.debug(sources_new)
-    except Exception as e:
-        logger.exception(e)
-        logger.info("Unable to pull new sources from news API")
-
-        if strict:
-            # Kill the program
-            logger.critical("--strict used. Killing program")
-            exit(-1)
-        else:
-            # Don't kill the program, but since there aren't any new sources, just go to the
-            # next step
-            logger.warning("--strict NOT used, so continuing without updating DB with sources.")
-            return
-
-    logger.info("Beginning updating sources in DB")
-    for pulled_source in sources_new:
-        try:
-            db.updateOrInsertOne(
-                tableName="sources",
-                query={"id": pulled_source["id"]},
-                fields=pulled_source
-            )
-        except Exception as e:
-            logger.exception(e)
-            logger.exception("Unable to insert/update {0} into DB".format(pulled_source))
-            if strict:
-                # Kill the program
-                logger.critical("--strict used. Killing program")
-                exit(-1)
-            else:
-                # Continue
-                logger.warning("--strict NOT used, so continuing without updating this source.")
-                return
-
-    logger.info("Finished updating sources in DB")
-
-def update_articles(db, source, news_api_key, strict=True):
-    """
-    Update all the articles in our database by querying the NewsAPI as appropriate
-    This function will kill the program on errors if strict is True.
-    """
-    try:
-        top_articles = get_top_articles(source_id=source["id"], news_api_key=ARGS.news_api_key)
-        logger.debug("Got top articles for source {0}: {1}".format(
-            source["id"],
-            top_articles
-        ))
-    except Exception as e:
-        logger.exception(e)
-        logger.info("Unable to pull new top articles for source {0} from news API".format(source['id']))
-
-        if strict:
-            # Kill the program
-            logger.critical("--strict used. Killing program")
-            exit(-1)
-        else:
-            # Don't kill the program, but since there aren't any new sources, just go to the
-            # next step
-            logger.warning("--strict NOT used, so continuing without updating top articles for source {0}".format(source['id']))
-            return
-    
-    for article in top_articles:
-        try:
-            db.updateOrInsertOne(
-                tableName="articles",
-                query={"url": article["url"]},
-                fields=article
-            )
-        except Exception as e:
-            logger.exception(e)
-            logger.exception("Unable to insert/update {0} into DB".format(pulled_source))
-            if strict:
-                # Kill the program
-                logger.critical("--strict used. Killing program")
-                exit(-1)
-            else:
-                # Continue
-                logger.warning("--strict NOT used, so continuing without updating this source.")
-                return
-
-    logger.info("Processed {0} articles for source {1}".format(
-        len(top_articles),
-        source['id']
-    ))
+# All the step names
+ALL_STEPS = [
+    "SOURCES",
+    "TOP_HEADLINES",
+    "EXTRACT_CONTENT"
+]
 
 def main():
     finished_loops = 0
 
-    # Initialize run mode.
+    # Initialize run mode. 
     if ARGS.mode == 'local':
         db = LocalDatabase(
             articles=[],
@@ -124,14 +37,14 @@ def main():
     logger.info("Starting main worker loop")
     while True:
 
-        # Update our sources
+        # Update our sources (step: SOURCES)
         update_sources(
             db=db,
             news_api_key=ARGS.news_api_key,
             strict=ARGS.strict
         )
 
-        # For each source, get the top headlines. Store top headlines in db.
+        # For each source, get the top headlines. Store top headlines in db. (step: TOP_HEADLINES)
         saved_sources = db.get(
             tableName='sources',
             fields=['id'],
@@ -148,7 +61,7 @@ def main():
 
         logger.info("Finished updating top articles for each source.")
 
-        # For each top headline, check if it is already processed.
+        # For each top headline, check if it is already processed. (step: )
 
         # For each unprocessed top headline, process it and store results.
 
