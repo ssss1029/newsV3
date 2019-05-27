@@ -28,10 +28,10 @@ class LocalDatabase(object):
         self.articles = self.db.table('articles')
         self.sources = self.db.table('sources')
 
-        for article in self.articles:
+        for article in articles:
             self.articles.insert(copy_dict_shallow(article))
 
-        for source in self.sources:
+        for source in sources:
             self.sources.insert(copy_dict_shallow(source))
 
         self.tables = { 'articles', 'sources' }

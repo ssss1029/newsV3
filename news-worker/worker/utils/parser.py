@@ -32,6 +32,8 @@ def generate_parser():
                         help='Choose mode to run worker.')
     parser.add_argument('--max-loops', default=1, type=int,
                         help='Maximum number of update loops to run. -1 = Run forever')
+    parser.add_argument('--step', default=None, action='append', 
+                        help='Manually set which steps to run.')
 
     # Logging settings
     parser.add_argument('--log-level', type=str, default="DEBUG",
