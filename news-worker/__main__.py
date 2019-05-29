@@ -7,8 +7,11 @@ import os
 import sys
 
 from worker.database.local.localdb import LocalDatabase
+
 from worker.steps.update_articles import update_articles
 from worker.steps.update_sources import update_sources
+from worker.steps.extract_content import extract_content_from_all_articles
+
 from worker.utils.news_api import get_all_sources, get_top_articles
 from worker.utils.parser import generate_parser
 from worker.utils.general import query_yes_no
@@ -38,7 +41,8 @@ def main():
     logger.info("Starting main worker loop")
     while True:
 
-        # Update our sources (step: SOURCES)
+        # Update our sources 
+        # (step: SOURCES)
         if ALL_STEPS[0] in ARGS.steps:
             update_sources(
                 db=db,
@@ -46,7 +50,8 @@ def main():
                 strict=ARGS.strict
             )
 
-        # For each source, get the top headlines. Store top headlines in db. (step: TOP_HEADLINES)
+        # For each source, get the top headlines. Store top headlines in db. 
+        # (step: TOP_HEADLINES)
         if ALL_STEPS[1] in ARGS.steps:
             saved_sources = db.get(
                 tableName='sources',
@@ -63,9 +68,17 @@ def main():
                 )
             logger.info("Finished updating top articles for each source.")
 
-        # For each top headline, check if it is already processed. (step: EXTRACT_CONTENT)
+        # For each top headline, check if it is already processed. 
+        # (step: EXTRACT_CONTENT)
         if ALL_STEPS[2] in ARGS.steps:
-            print("HERE")
+            logger.info("Beginning extracting")
+            extract_content_from_all_articles(
+                db=db,
+                news_api_key=ARGS.news_api_key,
+                strict=ARGS.strict,
+                num_threads=100
+            )
+            logger.info("Finished extracting.")
 
         # For each unprocessed top headline, process it and store results.
 

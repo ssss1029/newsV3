@@ -33,6 +33,7 @@ def update_articles(db, source, news_api_key, strict=True):
             return
     
     for article in top_articles:
+        article = {**article, **{"content": None}}
         try:
             db.updateOrInsertOne(
                 tableName="articles",

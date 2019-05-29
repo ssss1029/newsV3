@@ -2,19 +2,32 @@
 Handle text extraction from webpages
 """
 
-from boilerpipe.extract import Extractor
+import logging
 import unicodedata
 
-def extract_article_from_url(url):
+from boilerpipe.extract import Extractor
+from worker.utils.parser import generate_parser
+
+ARGS = generate_parser().parse_args()
+logger = logging.getLogger(__name__)
+
+
+def extract_content_from_url(url):
     """
     Returns the text from a given url. Works best on URLs that point to actual news articles.
     This function also cleans the text.
     """
-    extractor = Extractor(extractor='ArticleExtractor', url=url)
-    extracted_text = extractor.getText()
+    try:
+        extractor = Extractogr(extractor='ArticleExtractor', url=url)
+        extracted_text = extractor.getText()
 
-    # For now, just do a simple unicode normalization.
-    # TODO: Come back to this after working more with BERT.
-    extracted_text = unicodedata.normalize('NFKD', extracted_text).encode('ascii','ignore')
+        # For now, just do a simple unicode normalization.
+        # TODO: Come back to this later.
+        extracted_text = unicodedata.normalize('NFKD', extracted_text).encode('ascii','ignore')
+        print("Extracted content from {0}".format(url))
+    except Exception as e:
+        print("Unable to extract content from {0}".format(url))
+        print(">>> ERROR:", e)
+        extracted_text = e
 
     return extracted_text
